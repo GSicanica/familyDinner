@@ -255,12 +255,17 @@ use App\Models\Prijedlog;
 
 class PrijedlogController extends Controller
 {
-    public function glasanje()
+    public function glasanje(Request \$request)
     {
         \$jela = Jelo::all();
         \$clanovi = Clan::all();
+        \$trenutni_clan_id = \$request->session()->get('trenutni_clan_id', \$clanovi->first()->id);
 
-        return view('glasanje', ['jela' => \$jela, 'clanovi' => \$clanovi]);
+        return view('glasanje', [
+            'jela' => \$jela,
+            'clanovi' => \$clanovi,
+            'trenutni_clan_id' => \$trenutni_clan_id,
+        ]);
     }
 
     public function glasaj(Request \$request)
@@ -272,9 +277,17 @@ class PrijedlogController extends Controller
 
         Prijedlog::create(\$validated);
 
-        if (Prijedlog::count() >= Clan::count()) {
+        // Prebacivanje na sljedećeg člana
+        \$clanovi = Clan::all();
+        \$currentClanIndex = \$clanovi->pluck('id')->search(\$request->clan_id);
+        \$nextClanIndex = (\$currentClanIndex + 1) % \$clanovi->count();
+
+        // Ako su svi članovi glasali, preusmjerava na rezultat
+        if (\$nextClanIndex == 0) {
             return redirect('/rezultat');
         }
+
+        \$request->session()->put('trenutni_clan_id', \$clanovi[\$nextClanIndex]->id);
 
         return redirect('/glasanje')->with('success', 'Glas uspješno dodan!');
     }
@@ -375,13 +388,18 @@ cat <<EOT > resources/views/glasanje.blade.php
 <body>
     <div class="container">
         <h1>Glasanje za Jelo</h1>
+        @if (session('success'))
+            <p style="color: green;">{{ session('success') }}</p>
+        @endif
         <form action="{{ url('/glasanje') }}" method="POST">
             @csrf
             <div class="form-group">
-                <label for="clan_id">Odaberi Člana:</label>
+                <label for="clan_id">Član koji glasa:</label>
                 <select name="clan_id" id="clan_id" required>
                     @foreach(\$clanovi as \$clan)
-                        <option value="{{ \$clan->id }}">{{ \$clan->ime }}</option>
+                        <option value="{{ \$clan->id }}" {{ \$clan->id == \$trenutni_clan_id ? 'selected' : '' }}>
+                            {{ \$clan->ime }}
+                        </option>
                     @endforeach
                 </select>
             </div>
