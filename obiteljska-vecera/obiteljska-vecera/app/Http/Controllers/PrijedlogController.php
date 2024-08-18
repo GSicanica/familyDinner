@@ -52,4 +52,15 @@ class PrijedlogController extends Controller
 
         return view('rezultat', ['rezultati' => $rezultati]);
     }
+
+    public function resetirajGlasanje()
+    {
+        // Briše sve prethodne prijedloge
+        Prijedlog::truncate();
+
+        // Resetiranje sesije za trenutnog člana
+        session()->forget('trenutni_clan_id');
+
+        return redirect('/glasanje')->with('success', 'Glasanje je resetirano. Možete započeti ponovno.');
+    }
 }

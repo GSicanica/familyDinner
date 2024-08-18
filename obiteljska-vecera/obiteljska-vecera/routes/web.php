@@ -9,3 +9,4 @@ Route::resource('clanovi', ClanController::class);
 Route::get('/glasanje', [PrijedlogController::class, 'glasanje']);
 Route::post('/glasanje', [PrijedlogController::class, 'glasaj']);
 Route::get('/rezultat', [PrijedlogController::class, 'rezultat']);
+Route::get('/resetiraj-glasanje', [PrijedlogController::class, 'resetirajGlasanje']);

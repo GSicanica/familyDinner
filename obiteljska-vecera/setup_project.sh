@@ -216,7 +216,7 @@ class ClanController extends Controller
     public function create()
     {
         if (Clan::count() >= 4) {
-            return redirect('/glasanje')->with('error', 'Maksimalan broj članova je postignut.');
+            return redirect('/resetiraj-glasanje')->with('error', 'Maksimalan broj članova je postignut.');
         }
 
         return view('create');
@@ -231,7 +231,7 @@ class ClanController extends Controller
         Clan::create(\$validated);
 
         if (Clan::count() >= 4) {
-            return redirect('/glasanje')->with('success', 'Svi članovi su uspješno dodani!');
+            return redirect('/resetiraj-glasanje')->with('success', 'Svi članovi su uspješno dodani!');
         }
 
         return redirect('/clanovi')->with('success', 'Član uspješno dodan!');
@@ -298,6 +298,17 @@ class PrijedlogController extends Controller
 
         return view('rezultat', ['rezultati' => \$rezultati]);
     }
+
+    public function resetirajGlasanje()
+    {
+        // Briše sve prethodne prijedloge
+        Prijedlog::truncate();
+
+        // Resetiranje sesije za trenutnog člana
+        session()->forget('trenutni_clan_id');
+
+        return redirect('/glasanje')->with('success', 'Glasanje je resetirano. Možete započeti ponovno.');
+    }
 }
 EOT
 
@@ -315,6 +326,7 @@ Route::resource('clanovi', ClanController::class);
 Route::get('/glasanje', [PrijedlogController::class, 'glasanje']);
 Route::post('/glasanje', [PrijedlogController::class, 'glasaj']);
 Route::get('/rezultat', [PrijedlogController::class, 'rezultat']);
+Route::get('/resetiraj-glasanje', [PrijedlogController::class, 'resetirajGlasanje']);
 EOT
 
 # Kreiranje početnog pogleda index.blade.php
@@ -340,7 +352,7 @@ cat <<EOT > resources/views/index.blade.php
             <a href="{{ url('/clanovi/create') }}">Dodaj Novog Člana</a>
         @else
             <p style="color: red;">Maksimalni broj članova je postignut. Možete započeti glasanje.</p>
-            <a href="{{ url('/glasanje') }}" class="button">Započni Glasanje</a>
+            <a href="{{ url('/resetiraj-glasanje') }}" class="button">Započni Glasanje</a>
         @endif
     </div>
 </body>

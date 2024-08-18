@@ -17,7 +17,7 @@
             <a href="{{ url('/clanovi/create') }}">Dodaj Novog Člana</a>
         @else
             <p style="color: red;">Maksimalni broj članova je postignut. Možete započeti glasanje.</p>
-            <a href="{{ url('/glasanje') }}" class="button">Započni Glasanje</a>
+            <a href="{{ url('/resetiraj-glasanje') }}" class="button">Započni Glasanje</a>
         @endif
     </div>
 </body>

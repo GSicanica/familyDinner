@@ -16,7 +16,7 @@ class ClanController extends Controller
     public function create()
     {
         if (Clan::count() >= 4) {
-            return redirect('/glasanje')->with('error', 'Maksimalan broj članova je postignut.');
+            return redirect('/resetiraj-glasanje')->with('error', 'Maksimalan broj članova je postignut.');
         }
 
         return view('create');
@@ -31,7 +31,7 @@ class ClanController extends Controller
         Clan::create($validated);
 
         if (Clan::count() >= 4) {
-            return redirect('/glasanje')->with('success', 'Svi članovi su uspješno dodani!');
+            return redirect('/resetiraj-glasanje')->with('success', 'Svi članovi su uspješno dodani!');
         }
 
         return redirect('/clanovi')->with('success', 'Član uspješno dodan!');
